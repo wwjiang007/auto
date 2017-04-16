@@ -48,6 +48,8 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 import javax.annotation.processing.Messager;
@@ -156,9 +158,13 @@ public final class MemoizeExtension extends AutoValueExtension {
       MethodSpec.Builder constructor = constructorBuilder();
       for (Map.Entry<String, ExecutableElement> property : context.properties().entrySet()) {
         constructor.addParameter(
-            TypeName.get(property.getValue().getReturnType()), property.getKey());
+            TypeName.get(property.getValue().getReturnType()), property.getKey() + "$");
       }
-      constructor.addStatement("super($L)", Joiner.on(", ").join(context.properties().keySet()));
+      List<String> namesWithDollars = new ArrayList<String>();
+      for (String property : context.properties().keySet()) {
+        namesWithDollars.add(property + "$");
+      }
+      constructor.addStatement("super($L)", Joiner.on(", ").join(namesWithDollars));
       return constructor.build();
     }
 
